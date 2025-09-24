@@ -1,0 +1,6 @@
+ultralytics
+opencv-python
+dash
+plotly
+numpy
+nicegui
