@@ -7,7 +7,7 @@ A python-based Frontend interface for real-time Bison Tracking
 
 This repository provides a real-time bison tracking dashboard using two different Python web frameworks:
 - **Dash** (`app.py`): For real-time analytics and visualization.
-- **NiceGUI** (`bison_dashboard.py`): For a modern, interactive web interface.
+- **HTML** (`bison_dashboard.html`): For a modern, interactive web interface.
 
 Both dashboards visualize bison counts and trends from a video stream or RTSP source, powered by YOLO object detection and tracking.
 
@@ -51,17 +51,18 @@ pip install -r requirements.txt
 ```powershell
 python app.py
 ```
-- Open your browser and go to: [http://127.0.0.1:8050](http://127.0.0.1:8050)
+- Open your browser and go to: [http://127.0.0.1:5500/dashboard.html](http://127.0.0.1:5500)
+- 
 - The dashboard updates every second with live bison counts.
 
 ---
 
-## Running the NiceGUI Dashboard (`bison_dashboard.py`)
+## Running the HTML Dashboard (`dashboard.py`)
 
 ```cmd
 python bison_dashboard.py
 ```
-- By default, the app runs on [http://localhost:8000](http://localhost:8000) or the port specified in your script.
+- By default, the app runs on [http://localhost:50](http://localhost:8000) or the port specified in your script.
 - The dashboard features tabs for Overview, Historical Trends, and Behavioral Analysis.
 
 ---
