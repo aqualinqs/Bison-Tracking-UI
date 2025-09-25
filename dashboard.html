@@ -8,42 +8,37 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { background: #0f1115; color: #e6edf3; }
-    .sidebar { background: #161a22; }
-    .card { background: #1f2530; border-radius: 1rem; }
+    body { background: #000000; color: #e6edf3; }
+    .sidebar { background: #1c1e2b; }
+    .card { background: #2a2438; border-radius: 1rem; }
   </style>
 </head>
 <body class="flex h-screen">
-  <!-- Sidebar -->
   <aside class="sidebar w-64 p-4 flex flex-col">
     <h2 class="text-xl font-bold mb-6">Bison Tracker</h2>
     <nav class="space-y-3">
-      <a href="#" class="block px-3 py-2 rounded hover:bg-gray-700">Dashboard</a>
-      <a href="#" class="block px-3 py-2 rounded hover:bg-gray-700">Analytics</a>
-      <a href="#" class="block px-3 py-2 rounded hover:bg-gray-700">Reports</a>
-      <a href="#" class="block px-3 py-2 rounded hover:bg-gray-700">Settings</a>
+      <a href="#" class="block px-3 py-2 rounded hover:bg-purple-900">Dashboard</a>
+      <a href="#" class="block px-3 py-2 rounded hover:bg-purple-900">Analytics</a>
+      <a href="#" class="block px-3 py-2 rounded hover:bg-purple-900">Reports</a>
+      <a href="#" class="block px-3 py-2 rounded hover:bg-purple-900">Settings</a>
     </nav>
     <div class="mt-auto text-sm text-gray-400">
       &copy; 2025 Bison Tracker
     </div>
   </aside>
 
-  <!-- Main content -->
   <div class="flex-1 flex flex-col">
-    <!-- Header -->
-    <header class="flex items-center justify-between p-4 bg-gradient-to-r from-slate-800 to-slate-900">
+    <header class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 to-purple-900">
       <h1 class="text-lg font-semibold">Dashboard</h1>
       <nav class="space-x-6">
-        <a href="#" class="hover:text-blue-400">Home</a>
-        <a href="#" class="hover:text-blue-400">Detections</a>
-        <a href="#" class="hover:text-blue-400">Streams</a>
-        <a href="#" class="hover:text-blue-400">Summary</a>
+        <a href="#" class="hover:text-purple-400">Home</a>
+        <a href="#" class="hover:text-purple-400">Detections</a>
+        <a href="#" class="hover:text-purple-400">Streams</a>
+        <a href="#" class="hover:text-purple-400">Summary</a>
       </nav>
     </header>
 
-    <!-- Dashboard body -->
     <main class="p-6 space-y-6 overflow-auto">
-      <!-- Top metrics -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="card p-4 text-center">
           <p class="text-sm text-gray-400">Total Frames</p>
@@ -63,7 +58,6 @@
         </div>
       </div>
 
-      <!-- Streams -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="card p-4">
           <h3 class="font-semibold mb-2">MJPEG Stream</h3>
@@ -76,7 +70,6 @@
         </div>
       </div>
 
-      <!-- Analytics -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="card p-4">
           <h3 class="font-semibold mb-2">Detections Over Time</h3>
@@ -92,7 +85,6 @@
         </div>
       </div>
 
-      <!-- Summary report -->
       <div class="card p-6">
         <h3 class="font-semibold mb-4">Summary Report</h3>
         <p id="summary-text" class="text-gray-300 text-sm mb-4">
@@ -100,7 +92,7 @@
         </p>
         <div class="flex gap-4">
           <button onclick="downloadCSV()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm">Download CSV</button>
-          <button onclick="downloadPDF()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white text-sm">Download PDF</button>
+          <button onclick="downloadPDF()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-white text-sm">Download PDF</button>
         </div>
       </div>
     </main>
@@ -117,19 +109,19 @@
 
     const detectionsChart = new Chart(detectionsCtx, {
       type: 'line',
-      data: { labels: [], datasets: [{ label: 'Detections', data: [], borderColor: '#4ade80', tension: 0.3 }] },
+      data: { labels: [], datasets: [{ label: 'Detections', data: [], borderColor: '#a855f7', tension: 0.3 }] },
       options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 
     const confidenceChart = new Chart(confidenceCtx, {
       type: 'bar',
-      data: { labels: [], datasets: [{ label: 'Avg Confidence', data: [], backgroundColor: '#60a5fa' }] },
+      data: { labels: [], datasets: [{ label: 'Avg Confidence', data: [], backgroundColor: '#3b82f6' }] },
       options: { responsive: true, scales: { y: { min: 0, max: 1 } } }
     });
 
     const gaugeChart = new Chart(gaugeCtx, {
       type: 'doughnut',
-      data: { labels: ['Max Bison'], datasets: [{ data: [0, 10], backgroundColor: ['#f87171', '#1f2937'] }] },
+      data: { labels: ['Max Bison'], datasets: [{ data: [0, 10], backgroundColor: ['#8b5cf6', '#1f2937'] }] },
       options: { responsive: true, cutout: '70%', plugins: { legend: { display: false } } }
     });
 
