@@ -1,0 +1,360 @@
+<!-- Chosen Palette: Warm Neutral (Stone) with Teal Accent -->
+<!-- Application Structure Plan: The application is designed as a tabbed single-page dashboard with three distinct sections: 'Overview', 'Historical Trends', and 'Behavioral Analysis'. This thematic structure was chosen to guide the user from high-level, real-time metrics to more complex temporal and spatial analyses in a logical progression. The user flow is simple: land on the overview, and navigate to deeper insights as needed. Interactions include tab navigation to switch contexts and clickable elements in the 'Behavioral' section to drill down into individual bison tracking data via a modal window, preventing UI clutter. This architecture prioritizes clarity and focused analysis for each data type. -->
+<!-- Visualization & Content Choices: 
+- Live Stats -> Goal: Inform -> Viz: Large-text KPI cards (HTML/CSS) -> Interaction: None (dynamic text update) -> Justification: Provides immediate, at-a-glance status of key metrics.
+- Class Detections -> Goal: Compare -> Viz: Bar Chart (Chart.js/Canvas) -> Interaction: Hover for tooltips -> Justification: Clearly compares discrete categories (animal types).
+- Bison Count Trend -> Goal: Analyze Change -> Viz: Line Chart (Chart.js/Canvas) -> Interaction: Hover for tooltips -> Justification: The standard and most effective way to show data trends over a continuous period.
+- Hotspot Data -> Goal: Analyze Relationships (Spatial) -> Viz: Heatmap (Direct Canvas API) -> Interaction: Visual overlay on a static background -> Justification: Intuitively shows areas of high concentration without complex UI, using radial gradients on a canvas to represent heat.
+- Tracking History -> Goal: Organize & Explore -> Viz: Interactive List + Scatter Plot (HTML + Chart.js/Canvas) -> Interaction: Click list item to open a modal with a path chart -> Justification: Separates the selection (list) from the detailed view (modal chart), keeping the main interface clean while providing deep-dive capability.
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bison Tracking Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        stone: {
+                            50: '#fafaf9', 100: '#f5f5f4', 200: '#e7e5e4', 300: '#d6d3d1',
+                            400: '#a8a29e', 500: '#78716c', 600: '#57534e', 700: '#44403c',
+                            800: '#292524', 900: '#1c1917', 950: '#0c0a09',
+                        },
+                        teal: {
+                            50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+                            400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+                            800: '#115e59', 900: '#134e4a', 950: '#042f2e',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4;
+        }
+        .tab-button.active {
+            background-color: #14b8a6;
+            color: white;
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 40vh;
+            width: 100%;
+            max-height: 450px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-animation {
+            border-top-color: #14b8a6;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+
+    <div class="p-4 sm:p-8 w-full max-w-7xl mx-auto">
+        <header class="mb-8 p-6 bg-white rounded-2xl shadow-sm">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-stone-900">Bison Analytics Dashboard</h1>
+                    <p class="text-stone-500 mt-1">Real-time detection and behavior monitoring.</p>
+                </div>
+                <div id="status" class="flex items-center space-x-2 text-sm font-semibold text-stone-600">
+                    <span id="status-dot" class="block w-3 h-3 rounded-full bg-green-500"></span>
+                    <span id="status-text">Simulated</span>
+                </div>
+            </div>
+            <nav class="mt-6 flex flex-wrap gap-2">
+                <button class="tab-button bg-stone-200 text-stone-700 hover:bg-stone-300 font-semibold py-2 px-4 rounded-full transition-colors active" data-section="overview">
+                    &#128202; Overview
+                </button>
+                <button class="tab-button bg-stone-200 text-stone-700 hover:bg-stone-300 font-semibold py-2 px-4 rounded-full transition-colors" data-section="historical">
+                    &#128336; Historical Trends
+                </button>
+                <button class="tab-button bg-stone-200 text-stone-700 hover:bg-stone-300 font-semibold py-2 px-4 rounded-full transition-colors" data-section="behavioral">
+                    &#128003; Behavioral Analysis
+                </button>
+            </nav>
+        </header>
+
+        <main>
+            <section id="overview-section" class="content-section active">
+                <div class="p-6 bg-white rounded-2xl shadow-sm mb-6">
+                    <h2 class="text-xl font-bold text-stone-800 mb-1">Live Analytics</h2>
+                    <p class="text-stone-500 mb-4">This section provides an at-a-glance summary of the most critical real-time metrics from the monitoring system, including current animal counts and stream performance.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm font-medium text-stone-500">Live Bison Count</p><h3 id="bison-count" class="text-5xl font-extrabold text-teal-600 mt-2">--</h3></div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm font-medium text-stone-500">Max Bison in Frame</p><h3 id="max-count" class="text-5xl font-extrabold text-stone-800 mt-2">--</h3></div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm font-medium text-stone-500">Live FPS</p><h3 id="live-fps" class="text-5xl font-extrabold text-stone-800 mt-2">--</h3></div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm"><p class="text-sm font-medium text-stone-500">Average FPS</p><h3 id="average-fps" class="text-5xl font-extrabold text-stone-800 mt-2">--</h3></div>
+                </div>
+                 <div class="mt-6 bg-white rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-stone-800 mb-1">Detections by Class</h3>
+                    <p class="text-stone-500 mb-4">This chart compares the total number of detections for each animal class observed, helping to understand the wildlife composition in the monitored area.</p>
+                    <div class="chart-container"><canvas id="classDetectionsChart"></canvas></div>
+                </div>
+            </section>
+
+            <section id="historical-section" class="content-section">
+                 <div class="p-6 bg-white rounded-2xl shadow-sm">
+                    <h2 class="text-xl font-bold text-stone-800 mb-1">Historical Trends</h2>
+                    <p class="text-stone-500 mb-4">This section visualizes how the bison population in the monitored area has changed over time. The line chart helps identify patterns, such as peak activity times or seasonal trends, based on the count of detected bison.</p>
+                    <div class="chart-container"><canvas id="historicalChart"></canvas></div>
+                </div>
+            </section>
+
+            <section id="behavioral-section" class="content-section">
+                <div class="p-6 bg-white rounded-2xl shadow-sm mb-6">
+                    <h2 class="text-xl font-bold text-stone-800 mb-1">Behavioral Analysis</h2>
+                    <p class="text-stone-500 mb-4">Explore spatial and individual movement patterns. The Hotspot Map shows areas of frequent activity, while the Tracking History allows you to select a specific bison to see its recent path.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-stone-800">Bison Hotspot Map</h3>
+                        <p class="text-stone-500 mb-4">Warmer colors indicate higher bison concentration.</p>
+                        <div class="relative w-full aspect-video bg-stone-200 rounded-lg overflow-hidden border border-stone-300">
+                            <img src="https://placehold.co/800x450/e7e5e4/a8a29e?text=Video+Feed+Area" alt="Video Feed Area" class="absolute w-full h-full object-cover">
+                            <canvas id="hotspotCanvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-stone-800">Individual Tracking</h3>
+                         <p class="text-stone-500 mb-4">Click an ID to view its movement path.</p>
+                        <div id="tracked-bison-list" class="w-full h-80 overflow-y-auto bg-stone-100 rounded-lg p-2 border border-stone-200">
+                            <p class="text-stone-500 text-center py-4">No bison IDs available.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="tracking-history-modal" class="hidden fixed inset-0 bg-stone-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-2xl flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h4 id="modal-title" class="text-xl font-bold text-teal-700">Tracking History</h4>
+                <button id="close-modal" class="text-stone-500 hover:text-stone-800 font-bold text-2xl">&times;</button>
+            </div>
+            <div class="chart-container"><canvas id="trackingHistoryChart"></canvas></div>
+        </div>
+    </div>
+
+    <script>
+        const analyticsData = {
+            "live_stats": {
+                "bison_count": 20,
+                "max_bison_count": 12,
+                "live_fps": 18.5,
+                "average_fps": 20.1
+            },
+            "historical_data": {
+                "labels": ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"],
+                "bison_count_data": [5, 8, 10, 7, 12, 9, 5],
+                "class_detections": {
+                    "bison": 250,
+                    "wolf": 50,
+                    "elk": 75
+                }
+            },
+            "tracked_bison": {
+                "bison-001": [
+                    {"x": 100, "y": 250}, {"x": 120, "y": 270}, {"x": 150, "y": 300}, {"x": 180, "y": 280},
+                    {"x": 220, "y": 250}, {"x": 250, "y": 240}, {"x": 280, "y": 260}, {"x": 310, "y": 290}
+                ],
+                "bison-002": [
+                    {"x": 500, "y": 100}, {"x": 480, "y": 120}, {"x": 450, "y": 140}, {"x": 420, "y": 160},
+                    {"x": 400, "y": 180}, {"x": 380, "y": 200}, {"x": 350, "y": 220}, {"x": 320, "y": 240}
+                ]
+            },
+            "hotspot_data": [
+                {"x": 200, "y": 300, "count": 10},
+                {"x": 600, "y": 150, "count": 7},
+                {"x": 400, "y": 400, "count": 5}
+            ]
+        };
+
+        let historicalChart, classDetectionsChart, trackingHistoryChart;
+        let lastData = null;
+
+        const elements = {
+            bisonCount: document.getElementById('bison-count'),
+            maxCount: document.getElementById('max-count'),
+            liveFps: document.getElementById('live-fps'),
+            averageFps: document.getElementById('average-fps'),
+            statusDot: document.getElementById('status-dot'),
+            statusText: document.getElementById('status-text'),
+            tabButtons: document.querySelectorAll('.tab-button'),
+            contentSections: document.querySelectorAll('.content-section'),
+            hotspotCanvas: document.getElementById('hotspotCanvas'),
+            trackedBisonList: document.getElementById('tracked-bison-list'),
+            trackingHistoryModal: document.getElementById('tracking-history-modal'),
+            closeModalBtn: document.getElementById('close-modal'),
+            modalTitle: document.getElementById('modal-title')
+        };
+
+        function initializeCharts() {
+            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.color = '#57534e';
+
+            const baseChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { font: { weight: '600' } } },
+                    y: { border: { dash: [4, 4] }, grid: { color: '#e7e5e4' }, ticks: { font: { weight: '600' } } }
+                }
+            };
+            
+            historicalChart = new Chart(document.getElementById('historicalChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#14b8a6', backgroundColor: 'rgba(20, 184, 166, 0.1)', tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#14b8a6' }] },
+                options: { ...baseChartOptions, scales: { ...baseChartOptions.scales, y: { ...baseChartOptions.scales.y, beginAtZero: true }}}
+            });
+
+            classDetectionsChart = new Chart(document.getElementById('classDetectionsChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#14b8a6', '#f59e0b', '#f97316'] }] },
+                options: baseChartOptions
+            });
+
+            trackingHistoryChart = new Chart(document.getElementById('trackingHistoryChart').getContext('2d'), {
+                type: 'scatter',
+                data: { datasets: [{ data: [], backgroundColor: '#14b8a6', borderColor: '#0f766e', showLine: true, tension: 0.3 }] },
+                options: { ...baseChartOptions, scales: { 
+                    x: { ...baseChartOptions.scales.x, title: { display: true, text: 'X Coordinate' } },
+                    y: { ...baseChartOptions.scales.y, title: { display: true, text: 'Y Coordinate' } }
+                }}
+            });
+        }
+
+        function updateDashboard(data) {
+            elements.bisonCount.textContent = data.live_stats.bison_count ?? 0;
+            elements.maxCount.textContent = data.live_stats.max_bison_count ?? 0;
+            elements.liveFps.textContent = (data.live_stats.live_fps ?? 0).toFixed(1);
+            elements.averageFps.textContent = (data.live_stats.average_fps ?? 0).toFixed(1);
+
+            historicalChart.data.labels = data.historical_data.labels;
+            historicalChart.data.datasets[0].data = data.historical_data.bison_count_data;
+            historicalChart.update();
+
+            classDetectionsChart.data.labels = Object.keys(data.historical_data.class_detections);
+            classDetectionsChart.data.datasets[0].data = Object.values(data.historical_data.class_detections);
+            classDetectionsChart.update();
+
+            updateTrackedBisonList(data.tracked_bison);
+            drawHotspotMap(data.hotspot_data);
+        }
+
+        function drawHotspotMap(hotspotData) {
+            const canvas = elements.hotspotCanvas;
+            const container = canvas.parentElement;
+            const ctx = canvas.getContext('2d');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!hotspotData) return;
+
+            hotspotData.forEach(point => {
+                const x = (point.x / 800) * canvas.width; // Normalize to canvas width
+                const y = (point.y / 450) * canvas.height; // Normalize to canvas height
+                const radius = (point.count * canvas.width) / 100;
+
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                gradient.addColorStop(0, 'rgba(239, 68, 68, 0.6)');
+                gradient.addColorStop(0.5, 'rgba(239, 68, 68, 0.3)');
+                gradient.addColorStop(1, 'rgba(239, 68, 68, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+
+        function updateTrackedBisonList(trackedBison) {
+            elements.trackedBisonList.innerHTML = '';
+            const trackedIDs = Object.keys(trackedBison);
+            if (trackedIDs.length > 0) {
+                trackedIDs.forEach(id => {
+                    const button = document.createElement('button');
+                    button.textContent = `Bison ID: ${id}`;
+                    button.className = 'w-full text-left p-3 my-1 bg-stone-200 hover:bg-teal-100 rounded-lg transition-colors font-semibold text-stone-700';
+                    button.onclick = () => showTrackingHistory(id, trackedBison[id]);
+                    elements.trackedBisonList.appendChild(button);
+                });
+            } else {
+                elements.trackedBisonList.innerHTML = '<p class="text-stone-500 text-center py-4">No individual bison being tracked.</p>';
+            }
+        }
+
+        function showTrackingHistory(id, pathData) {
+            elements.modalTitle.textContent = `Tracking History for Bison ID: ${id}`;
+            trackingHistoryChart.data.datasets[0].data = pathData.map(p => ({ x: p.x, y: p.y }));
+            trackingHistoryChart.update();
+            elements.trackingHistoryModal.classList.remove('hidden');
+        }
+
+        function setupEventListeners() {
+            elements.closeModalBtn.onclick = () => {
+                elements.trackingHistoryModal.classList.add('hidden');
+            };
+
+            elements.tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    elements.tabButtons.forEach(btn => btn.classList.remove('active'));
+                    elements.contentSections.forEach(section => section.classList.remove('active'));
+                    
+                    const sectionId = button.dataset.section;
+                    document.getElementById(sectionId + '-section').classList.add('active');
+                    button.classList.add('active');
+                    if(sectionId === 'behavioral') {
+                        drawHotspotMap(lastData.hotspot_data);
+                    }
+                });
+            });
+            
+            window.addEventListener('resize', () => {
+                if (lastData) drawHotspotMap(lastData.hotspot_data);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+            setupEventListeners();
+            lastData = analyticsData;
+            updateDashboard(lastData);
+            setInterval(() => {
+                lastData = analyticsData;
+                updateDashboard(lastData);
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
