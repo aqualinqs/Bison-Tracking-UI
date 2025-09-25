@@ -1,13 +1,10 @@
 # Bison-Tracking-UI
 A python-based Frontend interface for real-time Bison Tracking
-
-# Bison-Tracking-UI
-A python-based Frontend interface for real-time Bison Tracking
 ## Overview
 
 This repository provides a real-time bison tracking dashboard using two different Python web frameworks:
 - **Dash** (`app.py`): For real-time analytics and visualization.
-- **HTML** (`bison_dashboard.html`): For a modern, interactive web interface.
+- **NiceGUI** (`bison_dashboard.py`): For a modern, interactive web interface.
 
 Both dashboards visualize bison counts and trends from a video stream or RTSP source, powered by YOLO object detection and tracking.
 
@@ -51,19 +48,34 @@ pip install -r requirements.txt
 ```powershell
 python app.py
 ```
-- Open your browser and go to: [http://127.0.0.1:5500/dashboard.html](http://127.0.0.1:5500)
-- 
+- Open your browser and go to: [http://127.0.0.1:8050](http://127.0.0.1:8050)
 - The dashboard updates every second with live bison counts.
 
 ---
 
-## Running the HTML Dashboard (`dashboard.py`)
 
-```cmd
-python bison_dashboard.py
-```
-- By default, the app runs on [http://localhost:50](http://localhost:8000) or the port specified in your script.
-- The dashboard features tabs for Overview, Historical Trends, and Behavioral Analysis.
+## Running the HTML Dashboard (`dashboard.html`)
+
+You can use the standalone HTML dashboard for a fast, browser-based view of bison analytics. This dashboard is built with Tailwind CSS and Chart.js, and polls the tracker API for live stats and video streams.
+
+### How to Use
+
+1. Open `dashboard.html` in your browser (double-click or right-click and choose "Open with" > your browser).
+2. Make sure your tracker server is running and accessible at the endpoints configured in the HTML (default: `http://localhost:8080/stats`, `http://localhost:8080/mjpeg`, `http://localhost:8080/hls.m3u8`).
+3. The dashboard will automatically poll for live stats and display:
+	- Live Bison Count
+	- Max Bison in Frame
+	- Live FPS and Average FPS
+	- Detections by Class (bar chart)
+	- Bison Count Trend (line chart)
+	- Live MJPEG video stream (if available)
+	- Download buttons for JSON/CSV stats
+
+#### Customization
+- You can edit the endpoints directly in the HTML file to match your server configuration.
+- No Python environment is required for the HTML dashboard—just a modern browser.
+
+---
 
 ---
 
@@ -101,14 +113,17 @@ Your dashboards connect to the bison tracker server via the following endpoint:
 
 ## File Structure
 
+
 ```
 app.py                  # Dash dashboard
 bison_dashboard.py      # NiceGUI dashboard
+dashboard.html          # Standalone HTML dashboard
 track.py                # Bison tracking script (YOLO)
 rtsp_bison_tracker_2.py # RTSP bison tracking
 requirements.txt        # Python dependencies
 args.yaml               # Tracker configuration
 best.pt                 # YOLO model weights
+architecture.svg        # Architecture diagram
 README.md               # This file
 ```
 
@@ -132,4 +147,3 @@ README.md               # This file
 ## License
 
 This project is licensed under the MIT License.
-
