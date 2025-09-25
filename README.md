@@ -58,10 +58,10 @@ python app.py
 
 ## Running the NiceGUI Dashboard (`bison_dashboard.py`)
 
-```powershell
+```cmd
 python bison_dashboard.py
 ```
-- By default, the app runs on [http://localhost:8080](http://localhost:8080) or the port specified in your script.
+- By default, the app runs on [http://localhost:8000](http://localhost:8000) or the port specified in your script.
 - The dashboard features tabs for Overview, Historical Trends, and Behavioral Analysis.
 
 ---
