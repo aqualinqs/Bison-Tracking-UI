@@ -1,0 +1,33 @@
+<svg width="600" height="350" xmlns="http://www.w3.org/2000/svg">
+  <rect x="30" y="40" width="160" height="50" fill="#e3f2fd" stroke="#1976d2" rx="10"/>
+  <text x="110" y="70" font-size="16" text-anchor="middle" fill="#1976d2">Video Source / RTSP</text>
+  
+  <rect x="230" y="40" width="160" height="50" fill="#fff3e0" stroke="#f57c00" rx="10"/>
+  <text x="310" y="70" font-size="16" text-anchor="middle" fill="#f57c00">Bison Tracking (YOLO)</text>
+  
+  <rect x="430" y="40" width="140" height="50" fill="#e8f5e9" stroke="#388e3c" rx="10"/>
+  <text x="500" y="70" font-size="16" text-anchor="middle" fill="#388e3c">Tracker API</text>
+  
+  <rect x="230" y="130" width="160" height="50" fill="#fce4ec" stroke="#d81b60" rx="10"/>
+  <text x="310" y="160" font-size="16" text-anchor="middle" fill="#d81b60">Dash Dashboard</text>
+  
+  <rect x="430" y="130" width="140" height="50" fill="#ede7f6" stroke="#512da8" rx="10"/>
+  <text x="500" y="160" font-size="16" text-anchor="middle" fill="#512da8">NiceGUI Dashboard</text>
+  
+  <rect x="330" y="230" width="160" height="50" fill="#fffde7" stroke="#fbc02d" rx="10"/>
+  <text x="410" y="260" font-size="16" text-anchor="middle" fill="#fbc02d">User Browser</text>
+  
+  <!-- Arrows -->
+  <line x1="190" y1="65" x2="230" y2="65" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="390" y1="65" x2="430" y2="65" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="500" y1="90" x2="310" y2="130" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="500" y1="90" x2="500" y2="130" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="310" y1="180" x2="410" y2="230" stroke="#d81b60" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <line x1="500" y1="180" x2="410" y2="230" stroke="#512da8" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+</svg>
