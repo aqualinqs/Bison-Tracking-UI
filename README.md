@@ -20,6 +20,7 @@ A python-based Frontend interface for real-time Bison Tracking
 
 Welcome to the wild side of data! This project brings you:
 - **Dash Dashboard** (`app.py`): 📊 Real-time analytics and visualization.
+- **NiceGUI Dashboard** (`dashboard.py`): 🎛️ Modern, reactive UI powered by [NiceGUI](https://nicegui.io).
 - **HTML Dashboard** (`index.html`): 🌐 Fast, browser-based live stats and video.
 
 Both dashboards visualize bison counts and trends from a video stream or RTSP source, powered by YOLO object detection and tracking. Watch the herd in action!
@@ -30,7 +31,8 @@ Both dashboards visualize bison counts and trends from a video stream or RTSP so
 ## ✨ Features
 - 🟢 Real-time bison count visualization
 - 📈 Historical trends and behavioral analysis
-- 📊 Interactive graphs (Plotly, Chart.js)
+- 📊 Interactive graphs (Plotly, Chart.js, NiceGUI widgets)
+- 📹 Live video stream integration (MJPEG/HLS)
 - 🔗 API integration with bison tracker server
 
 ---
@@ -47,14 +49,14 @@ cd Bison-Tracking-UI
 
 
 ### 2️⃣ Create and Activate Python Environment
-```powershell
+```cmd
 python -m venv .myenv
 .myenv\Scripts\activate
 ```
 
 
 ### 3️⃣ Install Dependencies
-```powershell
+```cmd
 pip install -r requirements.txt
 ```
 
@@ -68,7 +70,7 @@ pip install -r requirements.txt
 
 ## 🏃‍♂️ Running the Dash Dashboard (`app.py`)
 
-```powershell
+```cmd
 python app.py
 ```
 - Open your browser and go to: [http://127.0.0.1:8050](http://127.0.0.1:8050)
@@ -77,8 +79,27 @@ python app.py
 ---
 
 
+## 🎛️ Running the NiceGUI Dashboard (`dashboard.py`)
 
-## 🌐 Running the HTML Dashboard (`dashboard.html`)
+The NiceGUI version offers a modern, reactive interface with a sleek design and built-in controls.
+
+```cmd
+python dashboard.py
+
+```
+
+* Open your browser at: [http://127.0.0.1:8000](http://127.0.0.1:8000/) (default port)
+* Features include:
+
+  * Live bison count display
+  * Interactive charts (auto-updating)
+  * Embedded video stream viewer
+  * Responsive layout with mobile support
+
+---
+
+
+## 🌐 Running the HTML Dashboard (`index.html`)
 
 Use the standalone HTML dashboard for a fast, browser-based view of bison analytics. Built with Tailwind CSS and Chart.js, it polls the tracker API for live stats and video streams.
 
@@ -93,7 +114,7 @@ Use the standalone HTML dashboard for a fast, browser-based view of bison analyt
    - Detections by Class (bar chart)
    - Bison Count Trend (line chart)
    - Live MJPEG video stream (if available)
-   - Download buttons for JSON/CSV stats
+   - Download buttons for JSON/CSV stats and PDF analytical report
 
 #### 🎨 Customization
 - You can edit the endpoints directly in the HTML file to match your server configuration.
@@ -132,7 +153,7 @@ Your dashboards connect to the bison tracker server via the following endpoint:
   - 🔄 Restart your computer after installation.
 
 - **Port Conflicts:**
-  - 🔀 Change the port in your script if `8080` or `8050` is in use.
+  - 🔀 Change the port in your script if `8080` , 8000 or `8050` is in use.
 
 - **Missing Packages:**
   - 📦 Install with `pip install <package>` as needed.
@@ -144,16 +165,16 @@ Your dashboards connect to the bison tracker server via the following endpoint:
 
 
 ```
-app.py                  # Dash dashboard
-bison_dashboard.py      # NiceGUI dashboard
-dashboard.html          # Standalone HTML dashboard
-track.py                # Bison tracking script (YOLO)
-rtsp_bison_tracker_2.py # RTSP bison tracking
-requirements.txt        # Python dependencies
-args.yaml               # Tracker configuration
-best.pt                 # YOLO model weights
-architecture.svg        # Architecture diagram
-README.md               # This file
+app.py                  	# Dash dashboard
+dashboard.py      			# NiceGUI dashboard
+index.html          		# Standalone HTML dashboard
+track.py                	# Bison tracking script (YOLO)
+rtsp_bison_tracker_2.py 	# RTSP bison tracking
+requirements.txt        	# Python dependencies
+args.yaml               	# Tracker configuration
+best.pt                 	# YOLO model weights
+architecture.svg        	# Architecture diagram
+README.md               	# This file
 ```
 
 ---
@@ -166,14 +187,14 @@ README.md               # This file
 	<img src="architecture.svg" alt="Bison Tracking Architecture" width="500"/>
 </p>
 
-The diagram below shows the flow from the video source and tracker server to the Dash dashboard (`app.py`) and the standalone HTML dashboard (`dashboard.html`).
+The diagram shows the flow from the video source and tracker server to the Dash dashboard (`app.py`), NiceGUI dashboard (`dashboard.py`), and standalone HTML dashboard (`index.html`).
 
 ---
 
 
 ## ✅ Assessment Rubric Checklist
 - [x] Clear and complete setup instructions
-- [x] Running instructions for both dashboards
+- [x] Running instructions for all dashboards (Dash, NiceGUI, HTML)
 - [x] API endpoint documentation
 - [x] Troubleshooting section
 - [x] File structure overview
@@ -184,3 +205,8 @@ The diagram below shows the flow from the video source and tracker server to the
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+
+## Creator
+
+Designed with 💖💖 by **Akua Agyare**
