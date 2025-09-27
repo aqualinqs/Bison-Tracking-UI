@@ -5,7 +5,7 @@ A python-based Frontend interface for real-time Bison Tracking
 # 🦬 Bison-Tracking-UI
 
 <p align="center">
-	<img src="architecture.svg" alt="Bison Tracking Architecture" width="500"/>
+	<img src="architecture_image.svg" alt="Bison Tracking Architecture" width="500"/>
 </p>
 
 <p align="center">
@@ -184,7 +184,7 @@ README.md               	# This file
 ## 🏞️ Architecture Diagram
 
 <p align="center">
-	<img src="architecture.svg" alt="Bison Tracking Architecture" width="500"/>
+	<img src="architecture_image.svg" alt="Bison Tracking Architecture" width="500"/>
 </p>
 
 The diagram shows the flow from the video source and tracker server to the Dash dashboard (`app.py`), NiceGUI dashboard (`dashboard.py`), and standalone HTML dashboard (`index.html`).
