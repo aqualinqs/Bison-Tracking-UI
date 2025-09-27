@@ -20,7 +20,7 @@ A python-based Frontend interface for real-time Bison Tracking
 
 Welcome to the wild side of data! This project brings you:
 - **Dash Dashboard** (`app.py`): 📊 Real-time analytics and visualization.
-- **HTML Dashboard** (`dashboard.html`): 🌐 Fast, browser-based live stats and video.
+- **HTML Dashboard** (`index.html`): 🌐 Fast, browser-based live stats and video.
 
 Both dashboards visualize bison counts and trends from a video stream or RTSP source, powered by YOLO object detection and tracking. Watch the herd in action!
 
