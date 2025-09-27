@@ -5,7 +5,7 @@ A python-based Frontend interface for real-time Bison Tracking
 # 🦬 Bison-Tracking-UI
 
 <p align="center">
-	<img src="architecture.PNG" alt="Bison Tracking Architecture" width="500"/>
+	<img src="bison_architecture.PNG" alt="Bison Tracking Architecture" width="500"/>
 </p>
 
 <p align="center">
