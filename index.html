@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bison Guard Tracker Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { background: #000000; color: #e6edf3; }
+    .sidebar { background: #1c1e2b; }
+    .card { background: #2a2438; border-radius: 1rem; }
+  </style>
+</head>
+<body class="flex h-screen">
+  <aside class="sidebar w-64 p-4 flex flex-col">
+    <h2 class="text-xl font-bold mb-6">Bison Tracker</h2>
+    <nav class="space-y-3">
+      <a href="index.html" class="block px-3 py-2 rounded hover:bg-purple-900">Detections Overview</a>
+      <a href="streams.html" class="block px-3 py-2 rounded hover:bg-purple-900">Behaviour Analytics</a>
+      <a href="trends.html" class="block px-3 py-2 rounded hover:bg-purple-900">Trends</a>
+      <a href="index.html" class="block px-3 py-2 rounded hover:bg-purple-900">Settings</a>
+    </nav>
+    <div class="mt-auto text-sm text-gray-400">
+      &copy; 2025 Bison Guard Tracker
+    </div>
+  </aside>
+
+  <div class="flex-1 flex flex-col">
+    <header class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-900 to-purple-900">
+          <nav class="mt-6 flex flex-wrap gap-2">
+                    <a href="index.html" class="hover:text-purple-400 bg-stone-200 text-stone-700 font-semibold py-2 px-4 rounded-full transition-colors active" data-section="overview">
+                      &#128203; HOME</a>
+                    <!-- <a href="detections.html" class="hover:text-purple-400 tab-button bg-stone-200 text-stone-700 font-semibold py-2 px-4 rounded-full transition-colors" data-section="detectionsChart">
+                      &#128202; DETECTIONS</a>                     -->
+                    <a href="trends.html" class="hover:text-purple-400 tab-button bg-stone-200 text-stone-700 font-semibold py-2 px-4 rounded-full transition-colors" data-section="historical">
+                      &#128336; TRENDS</a>
+                    <a href="streams.html" class="hover:text-purple-400 bg-stone-200 text-stone-700 hover:bg-stone-300 font-semibold py-2 px-4 rounded-full transition-colors" data-section="behavioral">
+                      &#128003; BEHAVIORIAL ANALYTICS</a>
+          </nav>
+          <div id="status" class="flex items-center space-x-2 text-sm font-semibold text-stone-600 text-white">
+                <span id="status-dot" class="block w-3 h-3 rounded-full bg-green-500"></span>
+                <span id="status-text">Live</span>
+          </div>          
+      
+        <!-- <a href="#" class="hover:text-purple-400">Home</a>
+        <li><a href="index.html">HOME</a></li>
+        <a href="#" class="hover:text-purple-400">Detections</a>
+        <a href="#" class="hover:text-purple-400">Streams</a>
+        <a href="#" class="hover:text-purple-400">Summary</a> -->
+    </header>
+    <div class="flex items-center md:flex-row justify-between p-4 gap-4 bg-gradient-to-r from-blue-900 to-purple-900">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white-900">Bison Guard Analytics System</h1>
+                <h2 class="text-lg font-semibold">A real-time bison detection and behavior monitoring dashboard</h2>
+            </div>
+    </div>
+
+    <main class="p-6 space-y-6 overflow-auto">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="card p-4 text-center">
+          <p class="text-sm text-gray-400">Total Frames</p>
+          <h2 id="total-frames" class="text-2xl font-bold">0</h2>
+        </div>
+        <div class="card p-4 text-center">
+          <p class="text-sm text-gray-400">FPS</p>
+          <h2 id="fps" class="text-2xl font-bold">0.0</h2>
+        </div>
+        <div class="card p-4 text-center">
+          <p class="text-sm text-gray-400">Total Detections</p>
+          <h2 id="total-detections" class="text-2xl font-bold">0</h2>
+        </div>
+        <div class="card p-4 text-center">
+          <p class="text-sm text-gray-400">Max in Frame</p>
+          <h2 id="max-bison" class="text-2xl font-bold">0</h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">MJPEG Stream</h3>
+          <img id="mjpeg" src="http://localhost:8080/mjpeg" class="rounded w-full">
+        </div>
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">HLS Stream</h3>
+          <video id="hlsVideo" controls autoplay muted playsinline class="rounded w-full"></video>
+          <p id="hlsStatus" class="text-xs text-gray-400 mt-2">Loading HLS...</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">Detections Over Time</h3>
+          <canvas id="detectionsChart"></canvas>
+        </div>
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">Confidence Trend</h3>
+          <canvas id="confidenceChart"></canvas>
+        </div>
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">Max Bison Gauge</h3>
+          <canvas id="gaugeChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="font-semibold mb-4">Summary Report</h3>
+        <p id="summary-text" class="text-gray-300 text-sm mb-4">
+          Loading real-time summary...
+        </p>
+        <div class="flex gap-4">
+          <button onclick="downloadCSV()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm">Download CSV</button>
+          <button onclick="downloadPDF()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-white text-sm">Download PDF</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Storage for history
+    const statsHistory = [];
+
+    // Charts
+    const detectionsCtx = document.getElementById('detectionsChart').getContext('2d');
+    const confidenceCtx = document.getElementById('confidenceChart').getContext('2d');
+    const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+
+    const detectionsChart = new Chart(detectionsCtx, {
+      type: 'line',
+      data: { labels: [], datasets: [{ label: 'Detections', data: [], borderColor: '#a855f7', tension: 0.3 }] },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    const confidenceChart = new Chart(confidenceCtx, {
+      type: 'bar',
+      data: { labels: [], datasets: [{ label: 'Avg Confidence', data: [], backgroundColor: '#3b82f6' }] },
+      options: { responsive: true, scales: { y: { min: 0, max: 1 } } }
+    });
+
+    const gaugeChart = new Chart(gaugeCtx, {
+      type: 'doughnut',
+      data: { labels: ['Max Bison'], datasets: [{ data: [0, 10], backgroundColor: ['#8b5cf6', '#1f2937'] }] },
+      options: { responsive: true, cutout: '70%', plugins: { legend: { display: false } } }
+    });
+
+    // Stats updater
+    async function updateStats() {
+      try {
+        const res = await fetch('http://localhost:8080/stats');
+        const d = await res.json();
+
+        // Add timestamp
+        const now = new Date().toLocaleTimeString();
+        d.timestamp = now;
+        statsHistory.push(d);
+
+        // Update metric cards
+        document.getElementById('total-frames').textContent = d.total_frames || 0;
+        document.getElementById('fps').textContent = (d.fps || 0).toFixed(1);
+        document.getElementById('total-detections').textContent = d.total_detections || 0;
+        document.getElementById('max-bison').textContent = d.max_bison_in_frame || 0;
+
+        // Detections chart
+        detectionsChart.data.labels.push(now);
+        detectionsChart.data.datasets[0].data.push(d.total_detections || 0);
+        if (detectionsChart.data.labels.length > 20) {
+          detectionsChart.data.labels.shift();
+          detectionsChart.data.datasets[0].data.shift();
+        }
+        detectionsChart.update();
+
+        // Confidence chart
+        confidenceChart.data.labels.push(now);
+        confidenceChart.data.datasets[0].data.push(d.avg_confidence || 0);
+        if (confidenceChart.data.labels.length > 20) {
+          confidenceChart.data.labels.shift();
+          confidenceChart.data.datasets[0].data.shift();
+        }
+        confidenceChart.update();
+
+        // Gauge chart
+        const maxVal = d.max_bison_in_frame || 0;
+        gaugeChart.data.datasets[0].data = [maxVal, Math.max(10 - maxVal, 0)];
+        gaugeChart.update();
+
+        // Summary
+        document.getElementById('summary-text').textContent =
+          `Processed ${d.total_frames} frames at ${d.fps.toFixed(1)} FPS. ` +
+          `Total detections: ${d.total_detections}. ` +
+          `Max bison in frame: ${d.max_bison_in_frame}. ` +
+          `Average confidence: ${(d.avg_confidence || 0).toFixed(3)}.`;
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+      }
+    }
+    setInterval(updateStats, 2000);
+    updateStats();
+
+    // CSV Download
+    function downloadCSV() {
+      let csv = "Timestamp,Total Frames,FPS,Total Detections,Max Bison,Avg Confidence\n";
+      statsHistory.forEach(row => {
+        csv += `${row.timestamp},${row.total_frames},${row.fps},${row.total_detections},${row.max_bison_in_frame},${row.avg_confidence}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "bison_report.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // PDF Download
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(14);
+      doc.text("Bison Tracker Report", 10, 10);
+      doc.setFontSize(10);
+
+      let y = 20;
+      statsHistory.forEach(row => {
+        doc.text(
+          `${row.timestamp} | Frames: ${row.total_frames}, FPS: ${row.fps.toFixed(1)}, ` +
+          `Detections: ${row.total_detections}, Max Bison: ${row.max_bison_in_frame}, ` +
+          `Avg Conf: ${(row.avg_confidence || 0).toFixed(3)}`,
+          10, y
+        );
+        y += 6;
+        if (y > 280) { doc.addPage(); y = 20; }
+      });
+
+      doc.save("bison_report.pdf");
+    }
+
+    // HLS setup
+    const video = document.getElementById('hlsVideo');
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource('http://localhost:8080/hls.m3u8');
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        document.getElementById('hlsStatus').textContent = 'HLS stream loaded';
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = 'http://localhost:8080/hls.m3u8';
+      video.addEventListener('loadedmetadata', () => {
+        document.getElementById('hlsStatus').textContent = 'HLS stream loaded';
+      });
+    } else {
+      document.getElementById('hlsStatus').textContent = 'HLS not supported in this browser';
+    }
+  </script>
+</body>
+</html>
